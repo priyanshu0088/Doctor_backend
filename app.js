@@ -4,7 +4,7 @@ const colors = require("colors");
 const cors = require("cors");
 require("dotenv").config();
 const path = require("path");
-// Custom Imports
+
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 const userRouter = require("./routes/userRoutes");
@@ -22,6 +22,7 @@ app.use(cors(corsOptions));
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+
 app.use(express.json({ limit: "10kb" }));
 
 app.use((req, res, next) => {
@@ -35,10 +36,12 @@ app.use("/api/v1/doctors", doctorRouter);
 
 // PRODUCTION SETUP
 if (process.env.NODE_ENV === "production") {
-  const __dirname = path.resolve();
-  app.use(express.static("../client/build"));
+  const rootDir = path.resolve();
+
+  app.use(express.static(path.join(rootDir, "../client/build")));
+
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+    res.sendFile(path.join(rootDir, "../client/build", "index.html"));
   });
 } else {
   app.get("/", (req, res) => {
