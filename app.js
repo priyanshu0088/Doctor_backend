@@ -3,7 +3,6 @@ const morgan = require("morgan");
 const colors = require("colors");
 const cors = require("cors");
 require("dotenv").config();
-const path = require("path");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -34,25 +33,17 @@ app.use((req, res, next) => {
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/doctors", doctorRouter);
 
-// PRODUCTION SETUP
-if (process.env.NODE_ENV === "production") {
-  const rootDir = path.resolve();
+// PRODUCTION OR ANY ENV – SIMPLE HOME ROUTE
+app.get("/", (req, res) => {
+  res.send("Doctor Appointment API is running...");
+});
 
-  app.use(express.static(path.join(rootDir, "../client/build")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(rootDir, "../client/build", "index.html"));
-  });
-} else {
-  app.get("/", (req, res) => {
-    res.send("Doctor Appointment API is running...");
-  });
-}
-
+// HANDLE UNDEFINED ROUTES
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
+// GLOBAL ERROR HANDLER
 app.use(globalErrorHandler);
 
 module.exports = app;
